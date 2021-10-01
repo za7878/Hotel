@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.human.app.iBook">
+
+<insert id="doAddBooking">insert into booking values (seq_bookcode.nextval,#{param1},#{param2},#{param3},#{param4},#{param5},#{param6},#{param7}) </insert>
+
+
+<select id="doFindBooked" resultType="com.human.app.Booked">
+		<![CDATA[	select a.bookcode,b.roomcode,b.name roomname, c.name typename, b.howmany max_howmany,
+					a.howmany,a.checkin,a.checkout,total,booker,mobile
+			from booking a, room b, roomtype c
+  where a.checkout > #{param2} and a.checkin <  #{param1}
+				and a.roomcode=b.roomcode
+                and b.type = c.typecode
+			order by a.checkin]]>
+</select>
+
+
+<select id="doPickBooking" resultType="com.human.app.goBooking">
+select a.roomcode,a.name roomname,b.name typename,a.howmany,a.howmuch
+    from room a, roomtype b
+    where roomcode in
+    (select roomcode from room
+    minus
+    select distinct roomcode from booking
+   <![CDATA[ where checkout > #{param2} and checkin < #{param1}]]>
+    )
+    and a.type=b.typecode
+</select>
+
+<update id="doUpdateBooking">
+	update booking set  howmany=#{param2}, booker=#{param3}, mobile=#{param4}
+	where bookcode=#{param1}
+</update>
+
+<delete id="doDeleteBooking">
+	delete from booking where bookcode=#{param1}
+</delete>
+</mapper>
